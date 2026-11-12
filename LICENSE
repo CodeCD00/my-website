@@ -1,0 +1,17 @@
+Copyright (c) 2026 Cody Molyneux. All rights reserved.
+
+The 3D models, textures, animations, character art and avatar drawings in this
+repository (including everything in 3d/, code char/, prototype/models/ and
+prototype/avatar/) are the original work of Cody Molyneux.
+
+No license is granted to copy, modify, redistribute, sell, or otherwise use
+this artwork, in whole or in part, for any purpose, including training or
+fine-tuning machine-learning models, without Cody Molyneux's prior written
+permission.
+
+You may view this repository and run the site locally to look at the
+portfolio.
+
+Third-party libraries and fonts that the site loads at runtime (three.js,
+Google Fonts) are not included in this repository and remain under their own
+licenses.

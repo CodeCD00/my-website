@@ -74,3 +74,7 @@ vercel deploy --prod
 ## Credits
 
 The models, textures, animations and character art are by Cody Molyneux. The site is built with [three.js](https://threejs.org), with the Bangers and Saira Condensed fonts from Google Fonts.
+
+## License
+
+© 2026 Cody Molyneux. **All rights reserved.** The artwork in this repo may not be copied, reused, redistributed or used for AI training without his written permission. You're welcome to clone it and run the site locally to view the portfolio. See [LICENSE](LICENSE).
