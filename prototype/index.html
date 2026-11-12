@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#14234a">
+  <title>Cody Molyneux | 3D Modeler &amp; Animator</title>
+  <meta name="description" content="Cody Molyneux, 3D modeler, animator and video editor. Blockbench models, GeckoLib animation and video.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Saira+Condensed:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="hero.css?v=5">
+  <link rel="stylesheet" href="shop.css?v=5">
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body>
+  <!-- One fixed stage: the canvas plus both UIs. The scroll spacers below drive the
+       fly-in from the hero's shack into the workshop (see hero.js). -->
+  <div class="stage" id="hero">
+    <div class="world" id="world" aria-hidden="true"></div>
+
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+      <defs>
+        <linearGradient id="beamGrad" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stop-color="#9ff0ff" stop-opacity="0.55"/>
+          <stop offset="1" stop-color="#5fd4ff" stop-opacity="0.05"/>
+        </linearGradient>
+        <linearGradient id="blFill" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#3fb6ef" stop-opacity="0.32"/>
+          <stop offset="0.55" stop-color="#1d6f9e" stop-opacity="0.24"/>
+          <stop offset="1" stop-color="#0d3c5c" stop-opacity="0.4"/>
+        </linearGradient>
+        <pattern id="blScan" width="4" height="4" patternUnits="userSpaceOnUse">
+          <rect width="4" height="1" fill="#9ff0ff" opacity="0.08"/>
+        </pattern>
+      </defs>
+    </svg>
+
+    <!-- ===== hero (outside) ===== -->
+    <div class="ui hero-ui" id="heroUI">
+      <svg class="beam" id="beam" aria-hidden="true">
+        <polygon id="beamPoly" points="0,0 0,0 0,0" fill="url(#beamGrad)"/>
+      </svg>
+
+      <header class="hero__title">
+        <h1>
+          <span class="hero__name">Cody Molyneux</span>
+          <span class="hero__role">3D modeler, animator &amp; video editor</span>
+        </h1>
+        <div class="hero__cta">
+          <a class="btn btn--primary" href="#workshop">Enter the workshop</a>
+          <a class="btn btn--holo" href="resume/Cody-Molyneux-Resume.docx" download>Download resume</a>
+        </div>
+      </header>
+
+      <nav class="holo-tabs" id="holoTabs" aria-label="Sections">
+        <a class="holo-tab is-active" aria-current="page" href="#top">Loadout</a>
+        <a class="holo-tab" href="#workshop">Models</a>
+        <a class="holo-tab" href="mailto:codymolyneux2000@gmail.com">Contact</a>
+      </nav>
+
+      <section class="holo-card" id="holoCard" aria-label="Selected item">
+        <div class="holo-card__panel" id="cardPanel" aria-live="polite"></div>
+        <div class="holo-card__nav">
+          <button type="button" id="prevItem" aria-label="Previous item">‹</button>
+          <span id="itemCount">1 / 6</span>
+          <button type="button" id="nextItem" aria-label="Next item">›</button>
+        </div>
+      </section>
+
+      <a class="scroll-cue" href="#workshop"><span>Scroll to enter the workshop</span><b aria-hidden="true">▼</b></a>
+
+      <footer class="hints" aria-label="Controls">
+        <span><kbd>←</kbd><kbd>→</kbd> Browse</span>
+        <span><kbd>Point</kbd> Inspect</span>
+        <button type="button" class="hint-btn" id="emoteBtn"><kbd>E</kbd> Emote</button>
+        <a class="hint-btn" href="#workshop"><kbd>Scroll</kbd> Enter workshop</a>
+      </footer>
+    </div>
+
+    <!-- ===== workshop (inside) ===== -->
+    <div class="ui shop-ui" id="shopUI">
+      <nav class="bl-tabs" id="shopTabs" aria-label="Workshop sections">
+        <a class="bl-tab" href="#top">Outside</a>
+        <span class="bl-tab is-active" aria-current="page">Models</span>
+        <button type="button" class="bl-tab" data-soon title="Character art">Art</button>
+        <a class="bl-tab" href="resume/Cody-Molyneux-Resume.docx" download>Resume</a>
+        <a class="bl-tab" href="mailto:codymolyneux2000@gmail.com">Contact</a>
+      </nav>
+
+      <section class="bl-panel" id="shopListPanel" aria-label="Models">
+        <div class="bl-panel__content">
+          <h2 class="bl-panel__heading">Models</h2>
+          <ul class="bl-list" id="shopList" role="listbox" aria-label="Choose a model"></ul>
+        </div>
+      </section>
+
+      <section class="holo-card shop-card" id="shopCard" aria-label="Selected model">
+        <div class="holo-card__panel" id="shopCardPanel" aria-live="polite"></div>
+      </section>
+
+      <p class="shop-status" id="shopStatus" role="status" hidden>Downloading asset…</p>
+
+      <footer class="hints shop-hints" aria-label="Workshop controls">
+        <span><kbd>↑</kbd><kbd>↓</kbd> Select</span>
+        <span><kbd>Drag</kbd> Spin</span>
+        <span><kbd>Space</kbd> Turntable</span>
+        <a class="hint-btn" href="#top"><kbd>Scroll up</kbd> Back outside</a>
+      </footer>
+    </div>
+
+    <!-- zone title, Borderlands-style, stamped in as you arrive -->
+    <div class="zone-title" id="zoneTitle" aria-hidden="true">
+      <span class="zone-title__name">Cody's Workshop</span>
+      <span class="zone-title__sub">Models &amp; animation</span>
+    </div>
+    <p class="loading" id="loading" role="status">Initializing loadout…</p>
+    <p class="toast" id="toast" role="status" hidden></p>
+    <ul class="sr-only" id="srItems" aria-label="Skills and software"></ul>
+  </div>
+
+  <!-- scroll track: hero, the walk to the shack, the workshop -->
+  <main class="track">
+    <section id="top" class="track__hero"><h2 class="sr-only">Cody's loadout</h2></section>
+    <div class="track__journey" aria-hidden="true"></div>
+    <section id="workshop" class="track__shop"><h2 class="sr-only">Cody's workshop: models and animation</h2></section>
+  </main>
+
+  <script type="module" src="hero.js?v=7"></script>
+</body>
+</html>

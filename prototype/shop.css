@@ -1,0 +1,229 @@
+/* Workshop UI (Borderlands holo menu), the scroll track, and the transition overlays. */
+
+/* ---------- scroll track: drives the fly-in, snaps to either end ---------- */
+.track { position: relative; z-index: -1; }
+.track__hero { height: 100svh; }
+.track__journey { height: 200svh; }
+.track__shop { height: 100svh; }
+
+/* ---------- transition overlays ---------- */
+.zone-title {
+  position: absolute;
+  left: 50%; top: 40%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 6;
+  text-align: center;
+}
+.zone-title.is-stamped { animation: zone-stamp 2.6s cubic-bezier(.2, .8, .2, 1) both; }
+@keyframes zone-stamp {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(1.6); }
+  10% { opacity: 1; transform: translate(-50%, -50%) scale(0.95); }
+  16% { transform: translate(-50%, -50%) scale(1); }
+  72% { opacity: 1; transform: translate(-50%, -50%) scale(1.02); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(1.04); }
+}
+@media (prefers-reduced-motion: reduce) { .zone-title.is-stamped { animation-duration: 1.6s; } }
+.zone-title__name {
+  font-family: var(--font-comic);
+  font-size: clamp(54px, 9vw, 132px);
+  line-height: 0.9;
+  color: var(--select);
+  -webkit-text-stroke: 3px var(--ink);
+  paint-order: stroke fill;
+  text-shadow: 6px 6px 0 var(--ink);
+  transform: rotate(-3deg);
+  white-space: nowrap;
+}
+.zone-title__sub {
+  margin-top: 12px;
+  padding: 4px 14px;
+  background: var(--ink);
+  color: #fff;
+  font-weight: 700;
+  font-size: clamp(16px, 1.8vw, 24px);
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+.scroll-cue {
+  position: absolute;
+  left: 50%; bottom: 64px;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  color: #fff;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-shadow: 0 1px 0 var(--ink), 0 0 8px rgba(5, 8, 12, 0.8);
+}
+.scroll-cue b { color: var(--select); font-size: 18px; animation: cue 1.2s ease-in-out infinite; }
+@keyframes cue { 50% { transform: translateY(5px); opacity: 0.6; } }
+
+/* ---------- holo tabs (workshop) ---------- */
+.bl-tabs {
+  position: absolute; left: 0; top: 0;
+  display: flex;
+  gap: 4px;
+  will-change: transform;
+  filter: drop-shadow(0 0 8px rgba(95, 212, 255, 0.55));
+}
+.bl-tab {
+  padding: 6px 14px;
+  background: rgba(10, 48, 76, 0.82);
+  border: 1px solid var(--holo);
+  color: var(--holo-bright);
+  font: 700 15px/1 var(--font-ui);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+}
+.bl-tab:hover, .bl-tab:focus-visible { background: rgba(30, 110, 160, 0.9); color: #fff; outline: none; }
+.bl-tab.is-active { background: var(--select); border-color: var(--select); color: var(--ink); cursor: default; }
+
+/* ---------- curved holo list panel (BL2 fast-travel style) ---------- */
+.bl-panel {
+  position: absolute; left: 0; top: 0;
+  width: 300px;
+  height: min(560px, 62svh);
+  will-change: transform;
+}
+.bl-panel > svg.bl-frame {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  overflow: visible;
+  pointer-events: none;
+  filter: drop-shadow(0 0 7px rgba(95, 212, 255, 0.6));
+}
+.bl-panel__content {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 16px 18px 12px;
+  transform: perspective(1100px) rotateY(16deg);
+  transform-origin: left center;
+}
+.bl-panel > svg.bl-frame { transform: perspective(1100px) rotateY(16deg); transform-origin: left center; }
+.bl-panel__heading {
+  margin: 0 0 6px;
+  font-family: var(--font-comic);
+  font-weight: 400;
+  font-size: 30px;
+  letter-spacing: 0.06em;
+  color: var(--holo-bright);
+  text-shadow: 0 0 10px rgba(95, 212, 255, 0.85);
+}
+.bl-list {
+  list-style: none;
+  margin: 0 -40px 0 0;
+  padding: 0 40px 8px 0;
+  overflow-y: auto;
+  scrollbar-width: none;
+  flex: 1;
+  min-height: 0;
+}
+.bl-list::-webkit-scrollbar { display: none; }
+.bl-list__group {
+  margin: 9px 0 2px;
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--holo);
+}
+.bl-list__item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 3px 10px 3px 18px;
+  border: 0;
+  background: none;
+  font: 500 18px/1.25 var(--font-ui);
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+}
+.bl-list__item:hover { color: #fff; text-shadow: 0 0 6px rgba(95, 212, 255, 0.9); }
+.bl-list__item:focus-visible { outline: 2px solid var(--holo-bright); outline-offset: -2px; }
+.bl-badge {
+  margin-left: auto;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  padding: 0 5px;
+  border: 1px solid currentColor;
+  color: var(--select);
+}
+.bl-list__item.is-selected { color: var(--ink); text-shadow: none; font-weight: 700; }
+.bl-list__item.is-selected::before {
+  content: "";
+  position: absolute; inset: 0 -40px 0 4px;
+  z-index: -1;
+  background: linear-gradient(90deg, #ffe680, var(--select) 30%, #f0b800);
+  clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 50%, calc(100% - 16px) 100%, 0 100%);
+  box-shadow: 0 0 12px rgba(255, 210, 63, 0.7);
+}
+.bl-list__item.is-selected .bl-badge { color: var(--ink); }
+
+/* ---------- model card + status ---------- */
+.shop-card { width: 310px; }
+.shop-status {
+  position: absolute; left: 0; top: 0;
+  margin: 0;
+  padding: 4px 12px;
+  background: rgba(5, 8, 12, 0.7);
+  border: 1px solid var(--holo);
+  color: var(--holo-bright);
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  animation: blink 0.9s steps(2) infinite;
+}
+.shop-status[hidden] { display: none; }
+@keyframes blink { 50% { opacity: 0.4; } }
+.toast {
+  position: absolute; left: 50%; bottom: 70px;
+  transform: translateX(-50%);
+  margin: 0;
+  padding: 8px 16px;
+  background: rgba(6, 30, 48, 0.92);
+  border: 1px solid var(--holo);
+  color: var(--holo-bright);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  z-index: 7;
+}
+
+/* ---------- phones: tabs + horizontal list on top, card at the bottom ---------- */
+@media (max-width: 860px) {
+  .bl-tabs { left: 12px; right: 12px; top: max(12px, env(safe-area-inset-top)); transform: none !important; overflow-x: auto; scrollbar-width: none; }
+  .bl-tabs::-webkit-scrollbar { display: none; }
+  .bl-tab { padding: 6px 10px; font-size: 13px; }
+  .bl-panel { left: 12px; right: 12px; top: calc(max(12px, env(safe-area-inset-top)) + 42px); width: auto; height: auto; transform: none !important; }
+  .bl-panel > svg.bl-frame, .bl-panel__content { transform: none; }
+  .bl-panel__content { padding: 8px 10px; }
+  .bl-panel__heading { display: none; }
+  .bl-list { display: flex; gap: 4px; margin: 0; padding: 0; overflow-x: auto; overflow-y: hidden; }
+  .bl-list__group { display: none; }
+  .bl-list__item { white-space: nowrap; padding: 4px 10px; font-size: 15px; }
+  .bl-list__item.is-selected::before { inset: 0; clip-path: none; }
+  .bl-badge { display: none; }
+  .shop-hints { display: none; }
+  .shop-card { left: 12px !important; right: 12px; top: auto !important; bottom: max(10px, env(safe-area-inset-bottom)); width: auto; transform: none !important; }
+  .bl-list__item { min-height: 36px; }
+  .zone-title__name { white-space: normal; }
+  .scroll-cue { display: none; }
+}

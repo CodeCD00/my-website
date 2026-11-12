@@ -1,0 +1,21 @@
+# Reference screenshots are other people's copyrighted work: kept local only
+references/
+
+# Review renders and test videos
+prototype/test-frames/
+
+# The original Blockbench files stay local; cleaned copies are published in 3d/source/
+3d/*.bbmodel
+
+# Expired Discord links (the images themselves are in code char/)
+code char/*.webloc
+
+# Working copy of the resume; the published one is prototype/resume/
+/Cody Molyneux Resume.docx
+
+# Local tool state
+.vercel/
+.claude/
+.DS_Store
+*.blend1
+__pycache__/

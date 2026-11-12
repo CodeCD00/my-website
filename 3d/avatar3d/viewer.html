@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cody 3D avatar test</title>
+  <style>
+    html, body { margin: 0; height: 100%; background: #2a2340; font-family: system-ui, sans-serif; }
+    canvas { display: block; }
+    #ui { position: fixed; left: 12px; top: 12px; display: flex; flex-wrap: wrap; gap: 6px; max-width: calc(100vw - 24px); }
+    #ui button { font: 600 13px system-ui; padding: 6px 10px; border: 2px solid #111; border-radius: 6px; background: #ffd23f; cursor: pointer; }
+    #ui button.on { background: #111; color: #ffd23f; }
+    #info { position: fixed; left: 12px; bottom: 10px; color: #f6e7d2; font: 12px system-ui; opacity: .8; }
+    body.shot #ui, body.shot #info { display: none; }
+  </style>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body>
+  <div id="ui"></div>
+  <div id="info">drag to orbit · serve the project root: python3 -m http.server</div>
+  <script type="module">
+    import * as THREE from "three";
+    import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+    import { Ink } from "../../prototype/ink.js";
+    import { loadCody3D, EXPRESSIONS } from "./cody3d.js";
+
+    const q = new URLSearchParams(location.search);
+    if (q.has("shot")) document.body.classList.add("shot");
+    const model = q.get("model") || "cody_avatar.glb";
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    document.body.append(renderer.domElement);
+    const ink = new Ink(renderer, { thickness: 1.8 });
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(q.get("bg") || "#e6c08f");
+    scene.add(new THREE.HemisphereLight(0xffdcc4, 0x5a2f2a, 1.25));   // same lights as the hero
+    const sun = new THREE.DirectionalLight(0xffe2b8, 2.6);
+    sun.position.set(-6, 8, 7);
+    scene.add(sun);
+    const shadow = new THREE.Mesh(new THREE.CircleGeometry(0.75, 40),
+      new THREE.MeshBasicMaterial({ color: 0x1a0d08, transparent: true, opacity: 0.25, depthWrite: false }));
+    shadow.rotation.x = -Math.PI / 2;
+    shadow.position.y = 0.002;
+    shadow.userData.noInk = true;
+    scene.add(shadow);
+
+    const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 100);
+    const target = new THREE.Vector3(0, +(q.get("ty") || 1.15), 0);
+    const yaw = THREE.MathUtils.degToRad(+(q.get("yaw") || 0)), dist = +(q.get("dist") || 7.5);
+    camera.position.set(Math.sin(yaw) * dist, target.y + +(q.get("up") || 1.2), Math.cos(yaw) * dist);
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.target.copy(target);
+    controls.update();
+
+    const cody = await loadCody3D({ url: model, textures: "textures/", ink });
+    scene.add(cody.root);
+    window.cody = cody;
+    cody.setExpression(q.get("expr") || "not_talking");
+    if (q.get("pose")) cody.setPose(q.get("pose"), 0);
+
+    const ui = document.getElementById("ui");
+    let talking = false;
+    const buttons = {};
+    for (const name of EXPRESSIONS) {
+      const b = Object.assign(document.createElement("button"), { textContent: name });
+      b.onclick = () => { talking = false; cody.setExpression(name); sync(); };
+      ui.append((buttons[name] = b));
+    }
+    const talkBtn = Object.assign(document.createElement("button"), { textContent: "talk" });
+    talkBtn.onclick = () => { talking = !talking; sync(); };
+    ui.append(talkBtn);
+    for (const clip of cody.clips) {
+      const b = Object.assign(document.createElement("button"), { textContent: clip.name });
+      b.onclick = () => cody.setPose(clip.name);
+      ui.append(b);
+    }
+    const skinned = cody.body === null;   // standing model
+    if (!skinned && !q.has("shot") && !q.get("pose")) cody.setPose("Idle", 0); // seated: baked breathing loop
+    if (cody.clips.length) {
+      const b = Object.assign(document.createElement("button"), { textContent: skinned ? "A-pose" : "still" });
+      b.onclick = () => cody.setPose(null);
+      ui.append(b);
+    }
+    function sync() {
+      for (const [n, b] of Object.entries(buttons)) b.classList.toggle("on", !talking && cody.expression === n);
+      talkBtn.classList.toggle("on", talking);
+    }
+    sync();
+
+    function resize() {
+      const w = innerWidth, h = innerHeight;
+      renderer.setSize(w, h);
+      ink.setSize(w, h);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+    }
+    addEventListener("resize", resize);
+    resize();
+
+    const clock = new THREE.Clock();
+    let frames = 0, last = 0;
+    renderer.setAnimationLoop(() => {
+      const t = clock.getElapsedTime(), dt = Math.min(t - last, 0.1);
+      last = t;
+      if (talking) cody.setExpression(Math.floor(t * 9) % 2 ? "talking" : "not_talking");
+      if (cody.mixer) cody.mixer.update(q.has("shot") ? 1 : dt); // shots: settle the pose instantly
+      controls.update();
+      ink.render(scene, camera, sun.position);
+      if (++frames === 3) document.title += " · ready";
+    });
+  </script>
+</body>
+</html>
